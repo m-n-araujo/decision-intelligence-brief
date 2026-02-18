@@ -2,46 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Decision Intelligence Brief — Simple “Connections” (Lineage) UX</title>
+  <!-- ✅ Mobile-friendly viewport + safe-area support -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Decision Intelligence Brief — Mobile-First MVP</title>
   <style>
     :root{
       --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,system-ui,"Apple Color Emoji","Segoe UI Emoji";
       --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
 
-      /* Blue background system */
+      /* Soft Apple-like blues */
       --bg:#f3f7ff;
       --bg2:#eef4ff;
       --lane:#e3ecff;
       --lane2:#d6e4ff;
       --halo:rgba(0,113,227,.12);
 
-      /* Reading surfaces */
       --card:#ffffff;
 
-      /* Text */
       --text:#0b1220;
       --muted:#5f6b7a;
       --muted2:#7b8794;
 
-      /* Borders & shadows */
       --border:rgba(11,18,32,.10);
       --border2:rgba(11,18,32,.08);
+
       --shadow:0 18px 55px rgba(10,40,120,.12);
       --shadow2:0 10px 30px rgba(10,40,120,.10);
 
-      /* Accent */
       --accent:#0071e3;
-      --accent2:#5ac8fa;
       --good:#34c759;
       --warn:#ff9f0a;
       --hot:#ff3b30;
 
       --radius-xl:22px;
       --radius-lg:16px;
+      --radius-md:14px;
       --pill:999px;
 
       --max:1220px;
+
+      /* Tap sizing */
+      --tap: 44px;
     }
 
     [data-theme="dark"]{
@@ -64,8 +65,8 @@
       --shadow2:0 10px 30px rgba(0,0,0,.35);
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
       margin:0;
       font-family:var(--sans);
@@ -75,372 +76,582 @@
         radial-gradient(700px 400px at 80% 10%, rgba(90,200,250,.14), transparent 55%),
         linear-gradient(180deg, var(--bg), var(--bg2));
       overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
-    a{color:inherit}
-    button,input,select{font-family:inherit}
+    a{ color: inherit; }
+    button,input,select{ font-family:inherit; }
+    button{ -webkit-tap-highlight-color: transparent; }
 
+    /* ===== Desktop layout with ad gutters ===== */
     .page{
       display:grid;
-      grid-template-columns:240px minmax(0,var(--max)) 240px;
-      gap:18px;
-      width:min(1600px, calc(100% - 28px));
-      margin:18px auto 44px;
+      grid-template-columns: 240px minmax(0, var(--max)) 240px;
+      gap: 18px;
+      width: min(1600px, calc(100% - 28px));
+      margin: 18px auto 44px;
       align-items:start;
     }
     @media (max-width:1180px){
-      .page{grid-template-columns:1fr; width:min(var(--max), calc(100% - 28px))}
-      .gutter{display:none}
+      .page{ grid-template-columns: 1fr; width: min(var(--max), calc(100% - 28px)); }
+      .gutter{ display:none; }
     }
+
+    /* ===== Mobile full-bleed layout ===== */
+    @media (max-width: 640px){
+      .page{
+        width: 100%;
+        margin: 0;
+        gap: 0;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      }
+      .main{
+        padding: 10px 12px 0;
+      }
+    }
+
     .gutter{
-      position:sticky; top:16px;
-      border-radius:var(--radius-xl);
-      border:1px dashed rgba(0,113,227,.28);
-      background:linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.45));
-      padding:14px;
-      min-height:520px;
-      box-shadow:var(--shadow2);
-      color:var(--muted);
-      backdrop-filter:blur(10px);
+      position: sticky;
+      top: 16px;
+      border-radius: var(--radius-xl);
+      border: 1px dashed rgba(0,113,227,.28);
+      background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.45));
+      padding: 14px;
+      min-height: 520px;
+      box-shadow: var(--shadow2);
+      color: var(--muted);
+      backdrop-filter: blur(10px);
     }
     [data-theme="dark"] .gutter{
-      background:linear-gradient(180deg, rgba(16,26,42,.75), rgba(16,26,42,.55));
-      border-color:rgba(90,200,250,.22);
+      background: linear-gradient(180deg, rgba(16,26,42,.75), rgba(16,26,42,.55));
+      border-color: rgba(90,200,250,.22);
     }
     .gutter h3{
       margin:0 0 10px;
-      font-size:12px;
+      font-size: 12px;
       letter-spacing:.35px;
-      text-transform:uppercase;
-      color:var(--muted2);
+      text-transform: uppercase;
+      color: var(--muted2);
     }
-    .gutter p{margin:0; font-size:12px; line-height:1.5}
-    .main{min-width:0}
+    .gutter p{ margin:0; font-size: 12px; line-height:1.5; }
 
-    /* Top bar */
+    .main{ min-width:0; }
+
+    /* ===== Topbar (sticky on mobile) ===== */
     .topbar{
-      border-radius:var(--radius-xl);
-      background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.62));
-      border:1px solid rgba(0,113,227,.18);
-      box-shadow:var(--shadow2);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.66));
+      border: 1px solid rgba(0,113,227,.18);
+      box-shadow: var(--shadow2);
       overflow:hidden;
-      backdrop-filter:blur(10px);
+      backdrop-filter: blur(10px);
     }
     [data-theme="dark"] .topbar{
-      background:linear-gradient(180deg, rgba(16,26,42,.78), rgba(16,26,42,.62));
-      border-color:rgba(90,200,250,.18);
+      background: linear-gradient(180deg, rgba(16,26,42,.86), rgba(16,26,42,.66));
+      border-color: rgba(90,200,250,.18);
     }
+
+    @media (max-width: 640px){
+      .topbar{
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        border-radius: 18px;
+        margin-top: calc(8px + env(safe-area-inset-top));
+      }
+    }
+
     .topbarInner{
-      padding:16px;
-      display:flex; gap:14px;
+      padding: 14px 16px 10px;
+      display:flex;
+      gap: 12px;
       align-items:flex-start;
       justify-content:space-between;
       flex-wrap:wrap;
     }
-    .brand{display:flex; gap:12px; align-items:flex-start; min-width:320px; max-width:820px}
+    @media (max-width:640px){
+      .topbarInner{ padding: 12px 12px 10px; }
+    }
+
+    .brand{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      min-width: 260px;
+      max-width: 820px;
+    }
     .logo{
-      width:42px;height:42px;border-radius:14px;
+      width:40px;height:40px;
+      border-radius: 14px;
       background:
         radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.65), transparent 60%),
         linear-gradient(135deg, rgba(0,113,227,.95), rgba(90,200,250,.80));
-      border:1px solid rgba(0,0,0,.06);
-      box-shadow:0 12px 30px rgba(0,113,227,.22);
-      flex:0 0 auto;
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 12px 30px rgba(0,113,227,.22);
+      flex: 0 0 auto;
     }
-    [data-theme="dark"] .logo{border-color:rgba(255,255,255,.10)}
-    .brand h1{margin:0; font-size:16px; letter-spacing:.2px; line-height:1.15}
-    .brand p{margin:5px 0 0; font-size:12px; color:var(--muted); line-height:1.45}
+    [data-theme="dark"] .logo{ border-color: rgba(255,255,255,.10); }
 
-    .kpis{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; align-items:stretch}
+    .brand h1{ margin:0; font-size: 16px; letter-spacing:.2px; line-height:1.15; }
+    .brand p{ margin: 5px 0 0; font-size: 12px; color: var(--muted); line-height:1.45; }
+
+    .kpis{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:stretch;
+    }
     .kpi{
-      min-width:170px;
-      padding:12px 14px;
-      border-radius:var(--radius-lg);
-      background:rgba(255,255,255,.85);
-      border:1px solid rgba(0,113,227,.14);
-      box-shadow:0 8px 20px rgba(10,40,120,.10);
-      backdrop-filter:blur(10px);
+      min-width: 150px;
+      padding: 10px 12px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(0,113,227,.14);
+      box-shadow: 0 8px 20px rgba(10,40,120,.10);
+      backdrop-filter: blur(10px);
     }
     [data-theme="dark"] .kpi{
-      background:rgba(16,26,42,.75);
-      border-color:rgba(90,200,250,.16);
-      box-shadow:var(--shadow2);
+      background: rgba(16,26,42,.75);
+      border-color: rgba(90,200,250,.16);
+      box-shadow: var(--shadow2);
     }
-    .kpi .k{font-size:11px; color:var(--muted2); text-transform:uppercase; letter-spacing:.35px}
-    .kpi .v{margin-top:6px; display:flex; gap:8px; align-items:baseline}
-    .kpi strong{font-size:18px; letter-spacing:.2px}
-    .kpi span{font-size:12px; color:var(--muted)}
+    .kpi .k{ font-size: 11px; color: var(--muted2); text-transform: uppercase; letter-spacing:.35px; }
+    .kpi .v{ margin-top: 6px; display:flex; gap:8px; align-items:baseline; }
+    .kpi strong{ font-size: 18px; letter-spacing:.2px; }
+    .kpi span{ font-size: 12px; color: var(--muted); }
 
+    /* ===== Controls: desktop row + mobile “Filters” drawer ===== */
     .controls{
-      padding:12px 16px 16px;
-      border-top:1px solid rgba(0,113,227,.12);
+      padding: 10px 16px 14px;
+      border-top: 1px solid rgba(0,113,227,.12);
       display:grid;
-      grid-template-columns:1.7fr 1fr 1fr;
-      gap:10px;
-      background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.15));
+      grid-template-columns: 1.7fr 1fr 1fr;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.36), rgba(255,255,255,.16));
     }
     [data-theme="dark"] .controls{
-      background:linear-gradient(180deg, rgba(16,26,42,.35), rgba(16,26,42,.15));
-      border-top-color:rgba(90,200,250,.12);
+      background: linear-gradient(180deg, rgba(16,26,42,.35), rgba(16,26,42,.15));
+      border-top-color: rgba(90,200,250,.12);
     }
-    @media (max-width:900px){ .controls{grid-template-columns:1fr} }
+    @media (max-width: 900px){
+      .controls{ grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px){
+      .controls{
+        display:none; /* hidden on mobile: we use a drawer */
+      }
+    }
 
     .control{
-      border-radius:var(--radius-lg);
-      background:rgba(255,255,255,.92);
-      border:1px solid rgba(0,113,227,.14);
-      box-shadow:0 8px 20px rgba(10,40,120,.10);
-      padding:10px;
-      display:flex; gap:10px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.94);
+      border: 1px solid rgba(0,113,227,.14);
+      box-shadow: 0 8px 20px rgba(10,40,120,.10);
+      padding: 10px;
+      display:flex;
+      gap: 10px;
       align-items:center;
-      min-height:52px;
-      backdrop-filter:blur(10px);
+      min-height: 52px;
+      backdrop-filter: blur(10px);
     }
     [data-theme="dark"] .control{
-      background:rgba(16,26,42,.78);
-      border-color:rgba(90,200,250,.14);
-      box-shadow:var(--shadow2);
+      background: rgba(16,26,42,.78);
+      border-color: rgba(90,200,250,.14);
+      box-shadow: var(--shadow2);
     }
-    .control:focus-within{border-color:rgba(0,113,227,.40); box-shadow:0 0 0 6px var(--halo)}
+    .control:focus-within{
+      border-color: rgba(0,113,227,.40);
+      box-shadow: 0 0 0 6px var(--halo);
+    }
+
     .icon{
-      width:34px;height:34px;border-radius:12px;
-      display:grid; place-items:center;
-      font-family:var(--mono);
-      font-size:12px;
-      background:rgba(0,113,227,.10);
-      border:1px solid rgba(0,113,227,.22);
-      flex:0 0 auto;
-      color:var(--text);
+      width:34px;height:34px;
+      border-radius: 12px;
+      display:grid;
+      place-items:center;
+      font-family: var(--mono);
+      font-size: 12px;
+      background: rgba(0,113,227,.10);
+      border: 1px solid rgba(0,113,227,.22);
+      flex: 0 0 auto;
+      color: var(--text);
     }
-    .icon.green{background:rgba(52,199,89,.10); border-color:rgba(52,199,89,.22)}
-    .icon.amber{background:rgba(255,159,10,.10); border-color:rgba(255,159,10,.22)}
+    .icon.green{ background: rgba(52,199,89,.10); border-color: rgba(52,199,89,.22); }
+    .icon.amber{ background: rgba(255,159,10,.10); border-color: rgba(255,159,10,.22); }
+
     input[type="text"], select{
       width:100%;
-      background:transparent;
-      border:none; outline:none;
-      color:var(--text);
-      font-size:13px;
+      background: transparent;
+      border: none;
+      outline:none;
+      color: var(--text);
+      font-size: 14px;
     }
-    input::placeholder{color:rgba(95,107,122,.85)}
-    [data-theme="dark"] input::placeholder{color:rgba(182,194,209,.75)}
-    select{appearance:none; cursor:pointer}
+    input::placeholder{ color: rgba(95,107,122,.85); }
+    [data-theme="dark"] input::placeholder{ color: rgba(182,194,209,.75); }
+    select{ appearance:none; cursor:pointer; }
 
+    /* ===== Mobile: top quick actions row ===== */
+    .mobileQuick{
+      display:none;
+      margin-top: 10px;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 640px){
+      .mobileQuick{ display:flex; }
+    }
+    .pillBtn{
+      height: var(--tap);
+      padding: 0 12px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.16);
+      background: rgba(227,236,255,.60);
+      box-shadow: 0 8px 20px rgba(10,40,120,.10);
+      color: var(--text);
+      font-size: 13px;
+      display:inline-flex;
+      gap: 10px;
+      align-items:center;
+      cursor:pointer;
+      user-select:none;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .pillBtn{
+      background: rgba(15,33,68,.65);
+      border-color: rgba(90,200,250,.16);
+      box-shadow: var(--shadow2);
+    }
+    .pillDot{
+      width:8px;height:8px;border-radius:99px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0,113,227,.14);
+    }
+
+    /* ===== Time chips ===== */
     .subbar{
-      margin-top:12px;
-      display:flex; justify-content:space-between;
-      gap:12px; align-items:center;
-      flex-wrap:wrap;
-    }
-    .chips{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-    .chip{
-      padding:8px 10px;
-      border-radius:var(--pill);
-      border:1px solid rgba(0,113,227,.16);
-      background:rgba(227,236,255,.60);
-      color:var(--muted);
-      font-size:12px;
-      cursor:pointer;
-      user-select:none;
-      transition:transform .08s ease, border-color .15s ease, background .15s ease, color .15s ease;
-      backdrop-filter:blur(10px);
-    }
-    [data-theme="dark"] .chip{background:rgba(15,33,68,.65); border-color:rgba(90,200,250,.16)}
-    .chip:hover{transform:translateY(-1px); border-color:rgba(0,113,227,.28)}
-    .chip.active{color:var(--text); border-color:rgba(0,113,227,.42); background:rgba(0,113,227,.10)}
-
-    .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; align-items:center}
-    .btn{
-      border:1px solid rgba(0,113,227,.16);
-      background:rgba(227,236,255,.55);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:var(--radius-lg);
-      cursor:pointer;
-      font-size:12px;
-      transition:transform .08s ease, border-color .15s ease, background .15s ease;
-      box-shadow:0 8px 20px rgba(10,40,120,.10);
-      display:flex; gap:10px; align-items:center;
-      user-select:none;
-      backdrop-filter:blur(10px);
-    }
-    [data-theme="dark"] .btn{background:rgba(15,33,68,.65); border-color:rgba(90,200,250,.16); box-shadow:var(--shadow2)}
-    .btn:hover{transform:translateY(-1px); border-color:rgba(0,113,227,.30); background:rgba(214,228,255,.65)}
-    [data-theme="dark"] .btn:hover{background:rgba(19,42,84,.75)}
-    .btn.primary{background:rgba(0,113,227,.14); border-color:rgba(0,113,227,.32)}
-    .dot{width:8px;height:8px;border-radius:99px; background:var(--accent); box-shadow:0 0 0 4px rgba(0,113,227,.14)}
-
-    /* ===== NEW: SUPER SIMPLE “CONNECTIONS” MODE ===== */
-    .connBar{
-      margin-top:10px;
-      border-radius:var(--radius-xl);
-      border:1px solid rgba(0,113,227,.16);
-      background:linear-gradient(180deg, rgba(214,228,255,.60), rgba(227,236,255,.35));
-      box-shadow:var(--shadow2);
-      padding:10px 12px;
+      margin-top: 12px;
       display:flex;
-      gap:10px;
+      justify-content:space-between;
+      gap: 12px;
       align-items:center;
       flex-wrap:wrap;
-      backdrop-filter:blur(10px);
+    }
+    @media (max-width:640px){
+      .subbar{
+        margin-top: 10px;
+      }
+    }
+    .chips{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .chip{
+      height: var(--tap);
+      padding: 0 12px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.16);
+      background: rgba(227,236,255,.62);
+      color: var(--muted);
+      font-size: 13px;
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease, color .15s ease;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .chip{
+      background: rgba(15,33,68,.65);
+      border-color: rgba(90,200,250,.16);
+    }
+    .chip:hover{ transform: translateY(-1px); border-color: rgba(0,113,227,.28); }
+    .chip.active{
+      color: var(--text);
+      border-color: rgba(0,113,227,.42);
+      background: rgba(0,113,227,.10);
+    }
+
+    /* ===== Connections Bar ===== */
+    .connBar{
+      margin-top: 10px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(0,113,227,.16);
+      background: linear-gradient(180deg, rgba(214,228,255,.60), rgba(227,236,255,.35));
+      box-shadow: var(--shadow2);
+      padding: 10px 12px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap:wrap;
+      backdrop-filter: blur(10px);
     }
     [data-theme="dark"] .connBar{
-      background:linear-gradient(180deg, rgba(19,42,84,.70), rgba(15,33,68,.45));
-      border-color:rgba(90,200,250,.14);
-      box-shadow:var(--shadow2);
+      background: linear-gradient(180deg, rgba(19,42,84,.70), rgba(15,33,68,.45));
+      border-color: rgba(90,200,250,.14);
     }
-    .connLeft{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    @media (max-width: 640px){
+      .connBar{
+        border-radius: 18px;
+        padding: 10px 10px;
+      }
+    }
+
     .connTitle{
-      font-weight:800;
-      font-size:12px;
+      font-weight: 900;
+      font-size: 12px;
       letter-spacing:.35px;
-      text-transform:uppercase;
-      color:var(--muted2);
+      text-transform: uppercase;
+      color: var(--muted2);
       display:flex;
-      gap:8px;
+      gap: 8px;
       align-items:center;
+      white-space: nowrap;
     }
+
     .toggle{
       display:flex;
       align-items:center;
-      gap:10px;
-      padding:8px 10px;
-      border-radius:var(--pill);
-      border:1px solid rgba(0,113,227,.16);
-      background:rgba(255,255,255,.70);
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.16);
+      background: rgba(255,255,255,.74);
       cursor:pointer;
       user-select:none;
-      font-size:12px;
+      font-size: 13px;
+      height: var(--tap);
     }
-    [data-theme="dark"] .toggle{background:rgba(16,26,42,.70); border-color:rgba(90,200,250,.14)}
+    [data-theme="dark"] .toggle{ background: rgba(16,26,42,.70); border-color: rgba(90,200,250,.14); }
     .switch{
-      width:44px; height:26px;
-      border-radius:99px;
-      border:1px solid rgba(0,113,227,.18);
-      background:rgba(0,0,0,.06);
-      position:relative;
-      flex:0 0 auto;
+      width: 44px;
+      height: 26px;
+      border-radius: 99px;
+      border: 1px solid rgba(0,113,227,.18);
+      background: rgba(0,0,0,.06);
+      position: relative;
+      flex: 0 0 auto;
     }
-    [data-theme="dark"] .switch{background:rgba(255,255,255,.10); border-color:rgba(90,200,250,.18)}
+    [data-theme="dark"] .switch{ background: rgba(255,255,255,.10); border-color: rgba(90,200,250,.18); }
     .knob{
       width:22px;height:22px;border-radius:99px;
-      background:rgba(255,255,255,.95);
+      background: rgba(255,255,255,.95);
       position:absolute; top:1px; left:1px;
-      transition:left .18s ease, background .18s ease;
-      box-shadow:0 10px 22px rgba(0,0,0,.10);
+      transition: left .18s ease, background .18s ease;
+      box-shadow: 0 10px 22px rgba(0,0,0,.10);
     }
-    [data-theme="dark"] .knob{background:rgba(245,247,255,.92); box-shadow:0 10px 22px rgba(0,0,0,.35)}
-    .toggle.active .switch{background:rgba(0,113,227,.20)}
-    .toggle.active .knob{left:21px; background:rgba(255,255,255,.98)}
+    [data-theme="dark"] .knob{ background: rgba(245,247,255,.92); box-shadow: 0 10px 22px rgba(0,0,0,.35); }
+    .toggle.active .switch{ background: rgba(0,113,227,.20); }
+    .toggle.active .knob{ left: 21px; background: rgba(255,255,255,.98); }
+
     .helpPill{
-      font-size:12px;
-      color:var(--muted);
-      padding:8px 10px;
-      border-radius:var(--pill);
-      border:1px solid rgba(0,113,227,.12);
-      background:rgba(255,255,255,.55);
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.12);
+      background: rgba(255,255,255,.55);
+      height: var(--tap);
+      display:inline-flex;
+      align-items:center;
     }
-    [data-theme="dark"] .helpPill{background:rgba(16,26,42,.55); border-color:rgba(90,200,250,.12)}
-    .connRight{margin-left:auto; display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    [data-theme="dark"] .helpPill{
+      background: rgba(16,26,42,.55);
+      border-color: rgba(90,200,250,.12);
+    }
+    @media (max-width: 640px){
+      .helpPill{
+        height: auto;
+        min-height: var(--tap);
+        border-radius: 16px;
+        line-height: 1.25;
+      }
+    }
+
+    .connRight{
+      margin-left:auto;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
     .miniCount{
-      font-family:var(--mono);
-      font-size:12px;
-      padding:8px 10px;
-      border-radius:var(--pill);
-      border:1px solid rgba(0,113,227,.14);
-      background:rgba(255,255,255,.65);
-      color:var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.14);
+      background: rgba(255,255,255,.65);
+      color: var(--text);
+      height: var(--tap);
+      display:inline-flex;
+      align-items:center;
     }
-    [data-theme="dark"] .miniCount{background:rgba(16,26,42,.65); border-color:rgba(90,200,250,.14)}
-    .btnDanger{
+    [data-theme="dark"] .miniCount{
+      background: rgba(16,26,42,.65);
+      border-color: rgba(90,200,250,.14);
+    }
+
+    .btn{
+      height: var(--tap);
+      padding: 0 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,113,227,.16);
+      background: rgba(227,236,255,.55);
+      color: var(--text);
+      cursor:pointer;
+      font-size: 13px;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
+      box-shadow: 0 8px 20px rgba(10,40,120,.10);
+      display:inline-flex;
+      gap: 10px;
+      align-items:center;
+      user-select:none;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .btn{
+      background: rgba(15,33,68,.65);
+      border-color: rgba(90,200,250,.16);
+      box-shadow: var(--shadow2);
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(0,113,227,.30); background: rgba(214,228,255,.65); }
+    [data-theme="dark"] .btn:hover{ background: rgba(19,42,84,.75); }
+    .btn.danger{
       border-color: rgba(255,59,48,.22);
       background: rgba(255,59,48,.10);
     }
 
-    /* Clusters */
-    .clusters{margin-top:12px; display:flex; flex-direction:column; gap:12px}
-    .cluster{
-      border-radius:var(--radius-xl);
-      background:rgba(255,255,255,.60);
-      border:1px solid rgba(0,113,227,.16);
-      box-shadow:var(--shadow2);
-      overflow:hidden;
-      backdrop-filter:blur(10px);
-    }
-    [data-theme="dark"] .cluster{background:rgba(16,26,42,.60); border-color:rgba(90,200,250,.14)}
-    .clusterHeader{
-      padding:14px 16px 12px;
-      border-bottom:1px solid rgba(0,113,227,.12);
-      display:flex; justify-content:space-between;
-      gap:10px; align-items:center;
-      flex-wrap:wrap;
-      background:linear-gradient(180deg, rgba(214,228,255,.65), rgba(227,236,255,.35));
-    }
-    [data-theme="dark"] .clusterHeader{
-      background:linear-gradient(180deg, rgba(19,42,84,.70), rgba(15,33,68,.45));
-      border-bottom-color:rgba(90,200,250,.12);
-    }
-    .clusterHeader h2{margin:0; font-size:14px; letter-spacing:.2px}
-    .clusterMeta{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center}
-    .pill{
-      font-size:11px;
-      padding:6px 10px;
-      border-radius:var(--pill);
-      border:1px solid rgba(0,113,227,.14);
-      background:rgba(255,255,255,.78);
-      color:var(--muted);
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      white-space:nowrap;
-      backdrop-filter:blur(10px);
-    }
-    [data-theme="dark"] .pill{background:rgba(16,26,42,.72); border-color:rgba(90,200,250,.14)}
-    .pill .b{width:6px;height:6px;border-radius:99px; background:var(--good); box-shadow:0 0 0 4px rgba(52,199,89,.14)}
-    .pill.hot .b{background:var(--hot); box-shadow:0 0 0 4px rgba(255,59,48,.14)}
-    .pill.warn .b{background:var(--warn); box-shadow:0 0 0 4px rgba(255,159,10,.14)}
-
-    /* Rows area with blue lanes */
-    .rows{
-      padding:10px 10px 14px;
+    /* ===== Clusters ===== */
+    .clusters{
+      margin-top: 12px;
       display:flex;
       flex-direction:column;
-      gap:10px;
-      background:linear-gradient(180deg, var(--lane), var(--lane2));
+      gap: 12px;
+    }
+    .cluster{
+      border-radius: var(--radius-xl);
+      background: rgba(255,255,255,.60);
+      border: 1px solid rgba(0,113,227,.16);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    [data-theme="dark"] .cluster{
+      background: rgba(16,26,42,.60);
+      border-color: rgba(90,200,250,.14);
+    }
+    @media (max-width: 640px){
+      .cluster{
+        border-radius: 18px;
+      }
     }
 
+    .clusterHeader{
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(0,113,227,.12);
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      align-items:center;
+      flex-wrap:wrap;
+      background: linear-gradient(180deg, rgba(214,228,255,.65), rgba(227,236,255,.35));
+    }
+    [data-theme="dark"] .clusterHeader{
+      background: linear-gradient(180deg, rgba(19,42,84,.70), rgba(15,33,68,.45));
+      border-bottom-color: rgba(90,200,250,.12);
+    }
+    .clusterHeader h2{ margin:0; font-size: 14px; letter-spacing:.2px; }
+    @media (max-width: 640px){
+      .clusterHeader{
+        padding: 12px 12px 10px;
+      }
+      .clusterHeader h2{ font-size: 13px; }
+    }
+    .clusterMeta{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .pill{
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.14);
+      background: rgba(255,255,255,.78);
+      color: var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      white-space:nowrap;
+      backdrop-filter: blur(10px);
+    }
+    [data-theme="dark"] .pill{
+      background: rgba(16,26,42,.72);
+      border-color: rgba(90,200,250,.14);
+    }
+    .pill .b{ width:6px;height:6px;border-radius:99px; background: var(--good); box-shadow: 0 0 0 4px rgba(52,199,89,.14); }
+    .pill.hot .b{ background: var(--hot); box-shadow: 0 0 0 4px rgba(255,59,48,.14); }
+    .pill.warn .b{ background: var(--warn); box-shadow: 0 0 0 4px rgba(255,159,10,.14); }
+
+    /* ===== Rows area (blue lanes) ===== */
+    .rows{
+      padding: 10px 10px 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      background: linear-gradient(180deg, var(--lane), var(--lane2));
+    }
+    @media (max-width: 640px){
+      .rows{ padding: 10px; gap: 10px; }
+    }
+
+    /* ===== Desktop row layout (table-like) ===== */
     .row{
-      border-radius:16px;
-      border:1px solid var(--border2);
-      background:var(--card);
-      box-shadow:0 10px 26px rgba(10,40,120,.10);
-      padding:10px;
+      border-radius: 16px;
+      border: 1px solid var(--border2);
+      background: var(--card);
+      box-shadow: 0 10px 26px rgba(10,40,120,.10);
+      padding: 10px;
       display:grid;
-      grid-template-columns:120px 1.2fr 1fr 1.6fr 220px 170px;
-      gap:10px;
+      grid-template-columns: 120px 1.2fr 1fr 1.6fr 220px 200px;
+      gap: 10px;
       align-items:center;
       cursor:pointer;
-      transition:transform .08s ease, border-color .15s ease, box-shadow .15s ease;
+      transition: transform .08s ease, border-color .15s ease, box-shadow .15s ease;
       overflow:hidden;
       position:relative;
     }
     [data-theme="dark"] .row{
-      background:var(--card);
-      border-color:rgba(255,255,255,.12);
-      box-shadow:var(--shadow2);
+      background: var(--card);
+      border-color: rgba(255,255,255,.12);
+      box-shadow: var(--shadow2);
     }
-    .row:hover{transform:translateY(-1px); border-color:rgba(0,113,227,.26); box-shadow:0 14px 34px rgba(10,40,120,.14)}
+    .row:hover{
+      transform: translateY(-1px);
+      border-color: rgba(0,113,227,.26);
+      box-shadow: 0 14px 34px rgba(10,40,120,.14);
+    }
 
-    /* left freshness ribbon */
     .row::before{
       content:"";
-      position:absolute; left:0; top:0; bottom:0;
-      width:5px;
-      background:rgba(0,113,227,.14);
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 5px;
+      background: rgba(0,113,227,.14);
     }
-    .row.fresh-7::before{background:rgba(255,59,48,.45)}
-    .row.fresh-30::before{background:rgba(52,199,89,.45)}
-    .row.fresh-365::before{background:rgba(255,159,10,.45)}
+    .row.fresh-7::before{ background: rgba(255,59,48,.45); }
+    .row.fresh-30::before{ background: rgba(52,199,89,.45); }
+    .row.fresh-365::before{ background: rgba(255,159,10,.45); }
 
-    /* ===== NEW: connection-mode visuals ===== */
     .row.connectMode{
       border-color: rgba(0,113,227,.38);
       box-shadow: 0 16px 40px rgba(0,113,227,.14);
@@ -449,16 +660,21 @@
       border-color: rgba(255,159,10,.42);
       box-shadow: 0 16px 42px rgba(255,159,10,.16);
     }
-    .row.selectedTo{
-      border-color: rgba(0,113,227,.55);
-      box-shadow: 0 18px 46px rgba(0,113,227,.18);
+
+    .row .cell{
+      min-width:0;
+      padding-left: 8px;
+      border-left: 1px solid rgba(11,18,32,.06);
     }
+    .row .cell:first-child{ border-left:none; padding-left:0; }
+    [data-theme="dark"] .row .cell{ border-left-color: rgba(255,255,255,.08); }
+
     .badge{
       display:none;
       position:absolute;
       right:10px; top:10px;
       padding:6px 10px;
-      border-radius:var(--pill);
+      border-radius: var(--pill);
       border:1px solid rgba(0,113,227,.16);
       background: rgba(0,113,227,.10);
       font-size:11px;
@@ -466,235 +682,416 @@
       backdrop-filter: blur(10px);
       user-select:none;
     }
-    .row.selectedFrom .badge{display:inline-flex; border-color:rgba(255,159,10,.22); background:rgba(255,159,10,.12)}
-    .row.selectedTo .badge{display:inline-flex}
-    .row.selectedFrom .badge::before{content:"From · "; font-weight:800}
-    .row.selectedTo .badge::before{content:"To · "; font-weight:800}
-
-    .row .cell{min-width:0; padding-left:8px; border-left:1px solid rgba(11,18,32,.06)}
-    .row .cell:first-child{border-left:none; padding-left:0}
-    [data-theme="dark"] .row .cell{border-left-color:rgba(255,255,255,.08)}
-
-    @media (max-width:1180px){
-      .row{grid-template-columns:120px 1.2fr 1fr 1.4fr 200px 170px}
-    }
-    @media (max-width:980px){
-      .row{grid-template-columns:110px 1fr 1fr 1.2fr 160px 170px}
-      .srcHost{max-width:150px}
-    }
-    @media (max-width:780px){
-      .row{grid-template-columns:110px 1fr; grid-auto-rows:auto}
-      .cell{grid-column:span 2; border-left:none!important; padding-left:0!important}
-      .cell.date{grid-column:span 1}
-      .cell.actions{grid-column:span 1; justify-content:flex-end}
-      .badge{right:10px; top:54px}
-    }
+    .row.selectedFrom .badge{ display:inline-flex; border-color: rgba(255,159,10,.22); background: rgba(255,159,10,.12); }
+    .row.selectedFrom .badge::before{ content:"From · "; font-weight:900; }
 
     .cell.date{
-      font-family:var(--mono);
-      font-size:11px;
-      display:flex; align-items:center; gap:8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
       white-space:nowrap;
-      padding-left:0;
+      padding-left: 0;
     }
     .cell.date .d{
-      width:8px;height:8px;border-radius:99px;
-      background:var(--good);
-      box-shadow:0 0 0 4px rgba(52,199,89,.12);
+      width: 8px;height:8px;border-radius:99px;
+      background: var(--good);
+      box-shadow: 0 0 0 4px rgba(52,199,89,.12);
     }
-    .cell.date .d.hot{background:var(--hot); box-shadow:0 0 0 4px rgba(255,59,48,.12)}
+    .cell.date .d.hot{ background: var(--hot); box-shadow: 0 0 0 4px rgba(255,59,48,.12); }
 
-    .topic{font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .subtopic{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .summary{
-      font-size:12px; opacity:.92; line-height:1.35;
-      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-    }
-
-    .src{display:flex; flex-direction:column; gap:4px; min-width:0}
-    .src .lbl{font-size:10px; color:var(--muted2); text-transform:uppercase; letter-spacing:.35px}
-    .srcHost{font-family:var(--mono); font-size:12px; opacity:.92; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px}
-
-    .tag{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px;
-      border-radius:var(--pill);
-      border:1px solid rgba(0,113,227,.14);
-      background:rgba(227,236,255,.55);
-      font-size:11px; color:var(--muted);
+    .topic{
+      font-weight: 900;
+      font-size: 13px;
       white-space:nowrap;
-      margin-top:6px;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
-    [data-theme="dark"] .tag{background:rgba(15,33,68,.60); border-color:rgba(90,200,250,.14)}
-    .tag .b{width:6px;height:6px;border-radius:99px; background:var(--accent); box-shadow:0 0 0 4px rgba(0,113,227,.10)}
-    .tag.hot .b{background:var(--hot); box-shadow:0 0 0 4px rgba(255,59,48,.10)}
-    .tag.green .b{background:var(--good); box-shadow:0 0 0 4px rgba(52,199,89,.10)}
-    .tag.amber .b{background:var(--warn); box-shadow:0 0 0 4px rgba(255,159,10,.10)}
+    .subtopic{
+      font-size: 12px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .summary{
+      font-size: 12px;
+      opacity: .92;
+      line-height: 1.35;
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    .src{
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+      min-width:0;
+    }
+    .src .lbl{
+      font-size: 10px;
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing:.35px;
+    }
+    .srcHost{
+      font-family: var(--mono);
+      font-size: 12px;
+      opacity:.92;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 200px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.14);
+      background: rgba(227,236,255,.55);
+      font-size: 11px;
+      color: var(--muted);
+      white-space:nowrap;
+      margin-top: 6px;
+    }
+    [data-theme="dark"] .tag{
+      background: rgba(15,33,68,.60);
+      border-color: rgba(90,200,250,.14);
+    }
+    .tag .b{ width:6px;height:6px;border-radius:99px; background: var(--accent); box-shadow: 0 0 0 4px rgba(0,113,227,.10); }
+    .tag.hot .b{ background: var(--hot); box-shadow: 0 0 0 4px rgba(255,59,48,.10); }
+    .tag.green .b{ background: var(--good); box-shadow: 0 0 0 4px rgba(52,199,89,.10); }
+    .tag.amber .b{ background: var(--warn); box-shadow: 0 0 0 4px rgba(255,159,10,.10); }
 
     .cell.actions{
-      display:flex; gap:8px; justify-content:flex-end; align-items:center;
-      border-left:none; padding-left:0;
+      display:flex;
+      gap: 8px;
+      justify-content:flex-end;
+      align-items:center;
+      border-left:none;
+      padding-left:0;
     }
     .iconBtn{
-      height:38px;
-      padding:0 12px;
-      border-radius:14px;
-      border:1px solid rgba(0,113,227,.14);
-      background:rgba(227,236,255,.45);
+      height: var(--tap);
+      padding: 0 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,113,227,.14);
+      background: rgba(227,236,255,.45);
       cursor:pointer;
-      display:inline-flex; align-items:center; justify-content:center;
-      transition:transform .08s ease, border-color .15s ease, background .15s ease;
-      font-size:12px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
+      font-size: 13px;
       user-select:none;
       white-space:nowrap;
-      color:var(--text);
+      color: var(--text);
     }
-    [data-theme="dark"] .iconBtn{background:rgba(15,33,68,.60); border-color:rgba(90,200,250,.14)}
-    .iconBtn:hover{transform:translateY(-1px); border-color:rgba(0,113,227,.28); background:rgba(214,228,255,.60)}
-    [data-theme="dark"] .iconBtn:hover{background:rgba(19,42,84,.75)}
-    .iconBtn.star.active{border-color:rgba(255,159,10,.40); background:rgba(255,159,10,.14)}
-
-    /* NEW: Make Connect button extremely obvious in connect mode */
+    [data-theme="dark"] .iconBtn{
+      background: rgba(15,33,68,.60);
+      border-color: rgba(90,200,250,.14);
+    }
+    .iconBtn:hover{ transform: translateY(-1px); border-color: rgba(0,113,227,.28); background: rgba(214,228,255,.60); }
+    [data-theme="dark"] .iconBtn:hover{ background: rgba(19,42,84,.75); }
+    .iconBtn.star.active{
+      border-color: rgba(255,159,10,.40);
+      background: rgba(255,159,10,.14);
+    }
     .iconBtn.connect{
       border-color: rgba(0,113,227,.28);
       background: rgba(0,113,227,.10);
-      font-weight:800;
+      font-weight: 900;
     }
     .connectMode .iconBtn.connect{
       border-color: rgba(255,159,10,.35);
       background: rgba(255,159,10,.14);
     }
 
-    .empty{
-      margin-top:14px;
-      border-radius:var(--radius-xl);
-      border:1px dashed rgba(0,113,227,.22);
-      background:rgba(227,236,255,.55);
-      padding:18px;
-      color:var(--muted);
-      box-shadow:var(--shadow2);
-      backdrop-filter:blur(10px);
+    /* ===== MOBILE CARD MODE =====
+       On small screens, rows become stacked cards:
+       - top: title + date
+       - mid: subtopic + summary
+       - bottom: source + actions (big tap targets)
+    */
+    @media (max-width: 640px){
+      .row{
+        display:flex;
+        flex-direction:column;
+        align-items:stretch;
+        gap: 10px;
+        padding: 12px;
+        grid-template-columns: none;
+      }
+      .row .cell{ border-left:none; padding-left:0; }
+
+      .cell.date{
+        order: 1;
+        font-size: 12px;
+        justify-content:space-between;
+      }
+
+      .cell.titleBlock{ order: 2; }
+      .cell.subBlock{ order: 3; }
+      .cell.sumBlock{ order: 4; }
+      .cell.sourceBlock{ order: 5; }
+
+      .cell.actions{
+        order: 6;
+        justify-content:space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .topic{
+        font-size: 14px;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        line-height: 1.2;
+      }
+      .subtopic{
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        line-height: 1.25;
+      }
+      .summary{
+        -webkit-line-clamp: 3;
+        font-size: 13px;
+      }
+
+      .srcHost{ max-width: 100%; }
+
+      .badge{ top: 12px; right: 12px; }
     }
 
-    /* Details modal */
+    .empty{
+      margin-top: 14px;
+      border-radius: var(--radius-xl);
+      border: 1px dashed rgba(0,113,227,.22);
+      background: rgba(227,236,255,.55);
+      padding: 18px;
+      color: var(--muted);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ===== Details Modal ===== */
     .modalOverlay{
       position:fixed; inset:0;
-      background:rgba(0,0,0,.55);
+      background: rgba(0,0,0,.55);
       display:none;
       align-items:center;
       justify-content:center;
-      padding:18px;
-      z-index:50;
+      padding: 18px;
+      z-index: 50;
     }
-    .modalOverlay.show{display:flex}
+    .modalOverlay.show{ display:flex; }
+
     .modal{
-      width:min(920px, 100%);
-      border-radius:22px;
-      border:1px solid rgba(0,113,227,.18);
-      background:rgba(255,255,255,.92);
-      box-shadow:var(--shadow);
+      width: min(920px, 100%);
+      border-radius: 22px;
+      border: 1px solid rgba(0,113,227,.18);
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow);
       overflow:hidden;
-      backdrop-filter:blur(12px);
+      backdrop-filter: blur(12px);
+      max-height: 86vh;
+      display:flex;
+      flex-direction:column;
     }
-    [data-theme="dark"] .modal{background:rgba(16,26,42,.92); border-color:rgba(90,200,250,.16)}
+    [data-theme="dark"] .modal{
+      background: rgba(16,26,42,.92);
+      border-color: rgba(90,200,250,.16);
+    }
+
+    /* Mobile: modal becomes bottom sheet */
+    @media (max-width: 640px){
+      .modalOverlay{
+        padding: 0;
+        align-items:flex-end;
+      }
+      .modal{
+        width: 100%;
+        border-radius: 18px 18px 0 0;
+        max-height: calc(92vh - env(safe-area-inset-top));
+      }
+    }
+
     .modalHeader{
-      padding:16px 16px 12px;
-      border-bottom:1px solid rgba(0,113,227,.12);
-      display:flex; justify-content:space-between; gap:12px; align-items:flex-start;
-      background:linear-gradient(180deg, rgba(214,228,255,.55), rgba(255,255,255,.10));
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(0,113,227,.12);
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      align-items:flex-start;
+      background: linear-gradient(180deg, rgba(214,228,255,.55), rgba(255,255,255,.10));
     }
-    [data-theme="dark"] .modalHeader{background:linear-gradient(180deg, rgba(19,42,84,.70), rgba(16,26,42,.20)); border-bottom-color:rgba(90,200,250,.12)}
-    .modalHeader h2{margin:0; font-size:18px; line-height:1.2}
-    .modalHeader p{margin:6px 0 0; font-size:12px; color:var(--muted); line-height:1.4}
+    [data-theme="dark"] .modalHeader{
+      background: linear-gradient(180deg, rgba(19,42,84,.70), rgba(16,26,42,.20));
+      border-bottom-color: rgba(90,200,250,.12);
+    }
+    .modalHeader h2{ margin:0; font-size: 18px; line-height:1.2; }
+    .modalHeader p{ margin:6px 0 0; font-size: 13px; color: var(--muted); line-height:1.35; }
+
     .closeBtn{
-      width:44px;height:44px;border-radius:16px;
-      border:1px solid rgba(0,113,227,.14);
-      background:rgba(227,236,255,.45);
+      width: var(--tap);
+      height: var(--tap);
+      border-radius: 16px;
+      border: 1px solid rgba(0,113,227,.14);
+      background: rgba(227,236,255,.45);
       cursor:pointer;
-      display:grid; place-items:center;
-      color:var(--text);
-      flex:0 0 auto;
-    }
-    [data-theme="dark"] .closeBtn{background:rgba(15,33,68,.60); border-color:rgba(90,200,250,.14)}
-    .modalBody{
-      padding:14px 16px 16px;
       display:grid;
-      grid-template-columns:1.35fr .65fr;
-      gap:14px;
+      place-items:center;
+      color: var(--text);
+      flex: 0 0 auto;
     }
-    @media (max-width:860px){ .modalBody{grid-template-columns:1fr} }
+    [data-theme="dark"] .closeBtn{
+      background: rgba(15,33,68,.60);
+      border-color: rgba(90,200,250,.14);
+    }
+
+    .modalBody{
+      padding: 12px 14px 14px;
+      display:grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 12px;
+      overflow:auto;
+    }
+    @media (max-width: 860px){
+      .modalBody{ grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px){
+      .modalBody{
+        padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      }
+    }
+
     .panel{
-      border-radius:18px;
-      border:1px solid rgba(0,113,227,.12);
-      background:rgba(255,255,255,.86);
-      padding:14px;
+      border-radius: 18px;
+      border: 1px solid rgba(0,113,227,.12);
+      background: rgba(255,255,255,.86);
+      padding: 14px;
     }
-    [data-theme="dark"] .panel{background:rgba(15,33,68,.45); border-color:rgba(90,200,250,.12)}
+    [data-theme="dark"] .panel{
+      background: rgba(15,33,68,.45);
+      border-color: rgba(90,200,250,.12);
+    }
     .panel h3{
       margin:0 0 10px;
-      font-size:12px;
+      font-size: 12px;
       letter-spacing:.35px;
-      text-transform:uppercase;
-      color:var(--muted2);
+      text-transform: uppercase;
+      color: var(--muted2);
     }
-    .panel .text{margin:0; font-size:14px; line-height:1.55; opacity:.96}
+    .panel .text{
+      margin:0;
+      font-size: 15px;
+      line-height: 1.55;
+      opacity:.96;
+    }
+
     .kv{
       display:grid;
-      grid-template-columns:110px 1fr;
-      gap:8px 10px;
+      grid-template-columns: 110px 1fr;
+      gap: 8px 10px;
       align-items:start;
-      font-size:12px;
-      line-height:1.35;
+      font-size: 13px;
+      line-height: 1.35;
     }
-    .kv .k{color:var(--muted)}
-    .kv .v{color:var(--text)}
-    .kv a{color:var(--accent); text-decoration:underline; text-underline-offset:3px; word-break:break-word}
+    .kv .k{ color: var(--muted); }
+    .kv .v{ color: var(--text); }
+    .kv a{
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      word-break: break-word;
+    }
 
-    /* ===== NEW: “Connections” panel (replaces confusing graph) ===== */
+    /* ===== Connections panel: desktop floating card, mobile bottom sheet ===== */
     .connOverlayPanel{
-      position:fixed;
+      position: fixed;
       right: 18px;
       bottom: 18px;
       width: min(420px, calc(100% - 36px));
       max-height: 60vh;
       display:none;
-      z-index:40;
+      z-index: 40;
     }
-    .connOverlayPanel.show{display:block}
+    .connOverlayPanel.show{ display:block; }
+
+    @media (max-width: 640px){
+      .connOverlayPanel{
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-height: none;
+        padding: 0;
+      }
+    }
+
     .connCard{
-      border-radius:22px;
-      border:1px solid rgba(0,113,227,.18);
+      border-radius: 22px;
+      border: 1px solid rgba(0,113,227,.18);
       background: rgba(255,255,255,.92);
       box-shadow: var(--shadow);
       overflow:hidden;
       backdrop-filter: blur(12px);
     }
-    [data-theme="dark"] .connCard{background: rgba(16,26,42,.92); border-color: rgba(90,200,250,.16)}
+    [data-theme="dark"] .connCard{
+      background: rgba(16,26,42,.92);
+      border-color: rgba(90,200,250,.16);
+    }
+    @media (max-width: 640px){
+      .connCard{
+        border-radius: 18px 18px 0 0;
+      }
+    }
+
     .connCardHeader{
       padding: 12px 14px;
       border-bottom: 1px solid rgba(0,113,227,.12);
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
       background: linear-gradient(180deg, rgba(214,228,255,.55), rgba(255,255,255,.10));
     }
-    [data-theme="dark"] .connCardHeader{background: linear-gradient(180deg, rgba(19,42,84,.70), rgba(16,26,42,.20)); border-bottom-color: rgba(90,200,250,.12)}
+    [data-theme="dark"] .connCardHeader{
+      background: linear-gradient(180deg, rgba(19,42,84,.70), rgba(16,26,42,.20));
+      border-bottom-color: rgba(90,200,250,.12);
+    }
     .connCardHeader .t{
       font-weight: 900;
       font-size: 12px;
-      letter-spacing: .35px;
+      letter-spacing:.35px;
       text-transform: uppercase;
       color: var(--muted2);
     }
+
     .connCardBody{
       padding: 12px 14px;
       background: linear-gradient(180deg, var(--lane), var(--lane2));
       max-height: 52vh;
       overflow:auto;
     }
+    @media (max-width: 640px){
+      .connCardBody{
+        max-height: 70vh;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      }
+    }
+
     .edgeItem{
       border-radius: 16px;
       border: 1px solid rgba(0,113,227,.14);
-      background: rgba(255,255,255,.90);
-      padding: 10px 10px;
+      background: rgba(255,255,255,.92);
+      padding: 10px;
       margin-bottom: 10px;
     }
     [data-theme="dark"] .edgeItem{
@@ -702,79 +1099,167 @@
       border-color: rgba(90,200,250,.12);
     }
     .edgeTop{
-      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
     }
     .edgeTop .label{
-      font-size: 12px;
-      font-weight: 800;
+      font-size: 13px;
+      font-weight: 900;
       line-height: 1.25;
     }
     .edgeTop .mini{
       font-size: 11px;
       color: var(--muted);
       font-family: var(--mono);
+      white-space: nowrap;
     }
-    .edgeBtns{display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px}
+    .edgeBtns{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
     .tinyBtn{
-      border:1px solid rgba(0,113,227,.14);
+      height: var(--tap);
+      border: 1px solid rgba(0,113,227,.14);
       background: rgba(227,236,255,.55);
       border-radius: 14px;
-      padding: 8px 10px;
-      font-size: 12px;
+      padding: 0 12px;
+      font-size: 13px;
       cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      white-space: nowrap;
     }
-    [data-theme="dark"] .tinyBtn{background: rgba(15,33,68,.60); border-color: rgba(90,200,250,.14)}
+    [data-theme="dark"] .tinyBtn{
+      background: rgba(15,33,68,.60);
+      border-color: rgba(90,200,250,.14);
+    }
     .tinyBtn.danger{
       border-color: rgba(255,59,48,.24);
       background: rgba(255,59,48,.10);
     }
 
     .toast{
-      position:fixed;
-      bottom:18px;
-      left:50%;
-      transform:translateX(-50%);
-      background:rgba(255,255,255,.92);
-      border:1px solid rgba(0,113,227,.16);
-      box-shadow:0 16px 50px rgba(10,40,120,.16);
-      border-radius:var(--pill);
-      padding:10px 14px;
-      font-size:12px;
+      position: fixed;
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(0,113,227,.16);
+      box-shadow: 0 16px 50px rgba(10,40,120,.16);
+      border-radius: var(--pill);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text);
       display:none;
-      z-index:60;
-      backdrop-filter:blur(12px);
+      z-index: 60;
+      backdrop-filter: blur(12px);
+      max-width: calc(100% - 24px);
+      text-align:center;
     }
-    [data-theme="dark"] .toast{background:rgba(16,26,42,.92); border-color:rgba(90,200,250,.14); box-shadow:var(--shadow2)}
-    .toast.show{display:block; animation:pop .18s ease}
+    [data-theme="dark"] .toast{
+      background: rgba(16,26,42,.92);
+      border-color: rgba(90,200,250,.14);
+      box-shadow: var(--shadow2);
+    }
+    .toast.show{ display:block; animation: pop .18s ease; }
     @keyframes pop{
-      from{transform:translateX(-50%) translateY(6px); opacity:0}
-      to{transform:translateX(-50%) translateY(0); opacity:1}
+      from{ transform: translateX(-50%) translateY(6px); opacity:0; }
+      to{ transform: translateX(-50%) translateY(0); opacity:1; }
     }
 
     .footer{
-      margin-top:14px;
-      color:var(--muted);
-      font-size:12px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
       display:flex;
       justify-content:space-between;
-      gap:10px;
+      gap: 10px;
       flex-wrap:wrap;
       align-items:center;
+      padding-bottom: 10px;
+    }
+    @media (max-width:640px){
+      .footer{ padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
     }
     .footer code{
-      font-family:var(--mono);
-      font-size:11px;
-      padding:3px 8px;
-      border-radius:var(--pill);
-      border:1px solid rgba(0,113,227,.14);
-      background:rgba(227,236,255,.55);
-      color:var(--text);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: var(--pill);
+      border: 1px solid rgba(0,113,227,.14);
+      background: rgba(227,236,255,.55);
+      color: var(--text);
     }
 
-    .row:focus-visible,.chip:focus-visible,.btn:focus-visible,.iconBtn:focus-visible,.closeBtn:focus-visible,.toggle:focus-visible,.tinyBtn:focus-visible{
-      outline:none;
-      box-shadow:0 0 0 6px var(--halo);
-      border-color:rgba(0,113,227,.40)!important;
+    /* ===== Mobile Filters Drawer ===== */
+    .drawerOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      display:none;
+      z-index: 70;
+      padding: 0;
+    }
+    .drawerOverlay.show{ display:block; }
+    .drawer{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      background: rgba(255,255,255,.94);
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      border: 1px solid rgba(0,113,227,.18);
+      box-shadow: var(--shadow);
+      padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+      backdrop-filter: blur(14px);
+      transform: translateY(8px);
+      animation: sheet .18s ease forwards;
+    }
+    [data-theme="dark"] .drawer{
+      background: rgba(16,26,42,.94);
+      border-color: rgba(90,200,250,.16);
+      box-shadow: var(--shadow2);
+    }
+    @keyframes sheet{
+      to{ transform: translateY(0); }
+    }
+    .drawerTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding-bottom: 10px;
+    }
+    .drawerTop .t{
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing:.35px;
+      text-transform: uppercase;
+      color: var(--muted2);
+    }
+    .grab{
+      width: 44px;
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(11,18,32,.12);
+      margin: 0 auto 10px;
+    }
+    [data-theme="dark"] .grab{ background: rgba(255,255,255,.18); }
+
+    .drawerGrid{
+      display:grid;
+      gap: 10px;
+    }
+
+    /* Accessibility focus */
+    .row:focus-visible,.chip:focus-visible,.btn:focus-visible,.iconBtn:focus-visible,.tinyBtn:focus-visible,.closeBtn:focus-visible,.pillBtn:focus-visible{
+      outline: none;
+      box-shadow: 0 0 0 6px var(--halo);
+      border-color: rgba(0,113,227,.40) !important;
     }
   </style>
 </head>
@@ -793,23 +1278,24 @@
             <div class="logo" aria-hidden="true"></div>
             <div>
               <h1>Decision Intelligence Brief</h1>
-              <p><strong>Connections</strong> are now simple: turn it on → click an article → click another article → done.</p>
+              <p><strong>Mobile-first MVP.</strong> Explore by topic + time window. Create simple “connections” between items.</p>
             </div>
           </div>
 
           <div class="kpis">
             <div class="kpi">
-              <div class="k">Items in feed</div>
-              <div class="v"><strong id="statTotal">0</strong><span>entries</span></div>
+              <div class="k">Items</div>
+              <div class="v"><strong id="statTotal">0</strong><span>total</span></div>
             </div>
             <div class="kpi">
-              <div class="k">Visible now</div>
-              <div class="v"><strong id="statVisible">0</strong><span>entries</span></div>
+              <div class="k">Visible</div>
+              <div class="v"><strong id="statVisible">0</strong><span>now</span></div>
             </div>
           </div>
         </div>
 
-        <div class="controls">
+        <!-- Desktop controls (hidden on mobile) -->
+        <div class="controls" aria-label="Desktop filters">
           <div class="control" title="Search topic, subtopic, summary, source">
             <div class="icon">⌕</div>
             <input id="q" type="text" placeholder="Search: agentic, bias, DAO, governance, leadership…" autocomplete="off" />
@@ -828,36 +1314,44 @@
             </select>
           </div>
         </div>
+
+        <!-- Mobile quick actions -->
+        <div class="mobileQuick" aria-label="Mobile quick actions">
+          <button class="pillBtn" id="filtersBtn" type="button">
+            <span class="pillDot"></span> Filters
+          </button>
+          <button class="pillBtn" id="themeBtnMobile" type="button">Theme</button>
+          <button class="pillBtn" id="copyBtnMobile" type="button">Copy sources</button>
+        </div>
       </header>
 
       <div class="subbar">
         <div class="chips" id="timeChips" aria-label="Time window filters"></div>
-        <div class="actions">
+
+        <!-- Desktop actions (kept minimal) -->
+        <div class="actions" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; align-items:center;">
           <button class="btn" id="themeBtn" type="button">Theme</button>
           <button class="btn" id="resetBtn" type="button">Reset</button>
           <button class="btn" id="copyBtn" type="button">Copy sources</button>
         </div>
       </div>
 
-      <!-- NEW: Connections bar -->
       <div class="connBar" aria-label="Connections controls">
-        <div class="connLeft">
-          <div class="connTitle">Connections</div>
+        <div class="connTitle">Connections</div>
 
-          <div id="connectToggle" class="toggle" role="button" tabindex="0" aria-pressed="false" title="Turn on Connections mode">
-            <div class="switch"><div class="knob"></div></div>
-            <div><strong id="toggleText">Off</strong></div>
-          </div>
+        <div id="connectToggle" class="toggle" role="button" tabindex="0" aria-pressed="false" title="Turn on Connections mode">
+          <div class="switch"><div class="knob"></div></div>
+          <div><strong id="toggleText">Off</strong></div>
+        </div>
 
-          <div class="helpPill" id="helpText">
-            Turn on → click <b>From</b> article → click <b>To</b> article.
-          </div>
+        <div class="helpPill" id="helpText">
+          Turn on → tap <b>From</b> → tap <b>To</b>.
         </div>
 
         <div class="connRight">
           <span class="miniCount" id="edgeCount">0 connections</span>
-          <button class="btn" id="viewConnectionsBtn" type="button">View connections</button>
-          <button class="btn btnDanger" id="clearConnectionsBtn" type="button">Clear</button>
+          <button class="btn" id="viewConnectionsBtn" type="button">View</button>
+          <button class="btn danger" id="clearConnectionsBtn" type="button">Clear</button>
         </div>
       </div>
 
@@ -865,7 +1359,7 @@
       <div id="empty" class="empty" style="display:none;">No results match your filters.</div>
 
       <div class="footer">
-        <div>UX tip: in Connections mode, clicking a row won’t open details — it will help you connect two items.</div>
+        <div>Tip: On mobile, items are cards. Tap the card to open details, or use the buttons.</div>
         <div><code>single-file MVP</code></div>
       </div>
     </main>
@@ -913,7 +1407,7 @@
     </div>
   </div>
 
-  <!-- NEW: Connections Viewer Panel -->
+  <!-- Connections Viewer Panel -->
   <div class="connOverlayPanel" id="connPanel" aria-label="Connections panel">
     <div class="connCard">
       <div class="connCardHeader">
@@ -921,6 +1415,44 @@
         <button class="btn" id="closeConnPanel" type="button">Close</button>
       </div>
       <div class="connCardBody" id="connList"></div>
+    </div>
+  </div>
+
+  <!-- Mobile Filters Drawer -->
+  <div class="drawerOverlay" id="drawerOverlay" aria-label="Filters drawer">
+    <div class="drawer" role="dialog" aria-modal="true" aria-label="Filters">
+      <div class="grab" aria-hidden="true"></div>
+      <div class="drawerTop">
+        <div class="t">Filters</div>
+        <button class="btn" id="closeDrawerBtn" type="button">Done</button>
+      </div>
+
+      <div class="drawerGrid">
+        <div class="control" title="Search topic, subtopic, summary, source">
+          <div class="icon">⌕</div>
+          <input id="qMobile" type="text" placeholder="Search: agentic, bias, DAO…" autocomplete="off" />
+        </div>
+
+        <div class="control" title="Area of interest (topic filter)">
+          <div class="icon green">◎</div>
+          <select id="interestSelectMobile"></select>
+        </div>
+
+        <div class="control" title="Sort">
+          <div class="icon amber">⇅</div>
+          <select id="sortSelectMobile">
+            <option value="cluster_then_date_desc">Topic clusters → newest first</option>
+            <option value="cluster_then_date_asc">Topic clusters → oldest first</option>
+            <option value="date_desc">Global newest first</option>
+            <option value="date_asc">Global oldest first</option>
+          </select>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="resetBtnMobile" type="button">Reset</button>
+          <button class="btn" id="themeBtnDrawer" type="button">Theme</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1096,14 +1628,14 @@
       host: sourceHost(it),
     }));
 
-    const BOOKMARKS_KEY = "dib_bookmarks_conn_v1";
-    const THEME_KEY = "dib_theme_conn_v1";
-    const EDGES_KEY = "dib_connections_v1"; // renamed to "connections"
+    const BOOKMARKS_KEY = "dib_bookmarks_mobile_v1";
+    const THEME_KEY = "dib_theme_mobile_v1";
+    const EDGES_KEY = "dib_connections_mobile_v1";
     let bookmarks = new Set(JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || "[]"));
     let edges = JSON.parse(localStorage.getItem(EDGES_KEY) || "[]"); // {from,to,createdAt}
 
     const state = { q:"", interest:"all", sort:"cluster_then_date_desc", timeWindow:0 };
-    const connect = { on:false, fromId:null }; // super simple: pick from → pick to
+    const connect = { on:false, fromId:null };
 
     /***********************
      * THEME
@@ -1114,107 +1646,6 @@
       toast(theme === "dark" ? "Dark theme." : "Light theme.");
     }
     function getTheme(){ return localStorage.getItem(THEME_KEY) || "light"; }
-
-    /***********************
-     * CONTROLS
-     ***********************/
-    function initControls(){
-      const topics = ["all", ...Array.from(new Set(ITEMS.map(x=>x.topic))).sort((a,b)=>a.localeCompare(b))];
-      $("#interestSelect").innerHTML = topics.map(t => `<option value="${escapeHtml(t)}">${t==="all" ? "All areas of interest" : t}</option>`).join("");
-      $("#interestSelect").addEventListener("change", (e)=>{ state.interest = e.target.value; render(); });
-
-      const chips = [
-        { days:0, label:"All time" },
-        { days:7, label:"Newest (7d)" },
-        { days:30, label:"Last 30d" },
-        { days:365, label:"Last 1y" },
-        { days:-1, label:"Bookmarks" },
-      ];
-      $("#timeChips").innerHTML = chips.map(c => `<div class="chip ${c.days===state.timeWindow?"active":""}" data-days="${c.days}" role="button" tabindex="0">${escapeHtml(c.label)}</div>`).join("");
-      $("#timeChips").addEventListener("click",(e)=>{
-        const el = e.target.closest(".chip"); if(!el) return;
-        state.timeWindow = Number(el.dataset.days);
-        $$("#timeChips .chip").forEach(x=>x.classList.toggle("active", Number(x.dataset.days)===state.timeWindow));
-        render();
-      });
-
-      $("#q").addEventListener("input",(e)=>{ state.q = e.target.value.trim(); render(); });
-      $("#sortSelect").addEventListener("change",(e)=>{ state.sort = e.target.value; render(); });
-
-      $("#resetBtn").addEventListener("click", ()=>{
-        state.q=""; state.interest="all"; state.sort="cluster_then_date_desc"; state.timeWindow=0;
-        $("#q").value=""; $("#interestSelect").value="all"; $("#sortSelect").value="cluster_then_date_desc";
-        $$("#timeChips .chip").forEach(x=>x.classList.toggle("active", Number(x.dataset.days)===0));
-        setConnect(false);
-        render();
-        toast("Reset done.");
-      });
-
-      $("#copyBtn").addEventListener("click", async ()=>{
-        const list = flattenFiltered().map((x,i)=>{
-          const linkPart = x.url ? x.url : x.link;
-          return `${i+1}. ${x.topic} — ${x.subtopic} (${formatPrettyDate(x.iso)}) · ${x.source} · ${linkPart}`;
-        }).join("\n");
-        await copyToClipboard(list || "No items to copy.");
-        toast("Copied sources.");
-      });
-
-      $("#themeBtn").addEventListener("click", ()=>{
-        const cur = document.documentElement.getAttribute("data-theme") || "light";
-        setTheme(cur==="light" ? "dark" : "light");
-      });
-
-      // Connections controls
-      $("#connectToggle").addEventListener("click", ()=> setConnect(!connect.on));
-      $("#connectToggle").addEventListener("keydown",(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setConnect(!connect.on);} });
-
-      $("#viewConnectionsBtn").addEventListener("click", ()=> openConnectionsPanel());
-      $("#closeConnPanel").addEventListener("click", ()=> closeConnectionsPanel());
-
-      $("#clearConnectionsBtn").addEventListener("click", ()=>{
-        edges = [];
-        persistEdges();
-        toast("Connections cleared.");
-        updateEdgeCount();
-        renderConnectionsPanel();
-      });
-
-      $("#closeModal").addEventListener("click", closeModal);
-      $("#modalOverlay").addEventListener("click", (e)=>{ if(e.target.id==="modalOverlay") closeModal(); });
-
-      $("#mBookmarkBtn").addEventListener("click", ()=>{
-        if(!window.__modalItem) return;
-        toggleBookmark(window.__modalItem.id);
-        openModal(window.__modalItem);
-      });
-
-      $("#mCopyBtn").addEventListener("click", async ()=>{
-        const x = window.__modalItem; if(!x) return;
-        const citation = `${x.topic} — ${x.subtopic} (${formatPrettyDate(x.iso)}). Source: ${x.source}. ${x.url ? x.url : x.link}`;
-        await copyToClipboard(citation);
-        toast("Copied citation.");
-      });
-
-      document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ closeModal(); closeConnectionsPanel(); if(connect.on) setConnect(false); } });
-
-      updateEdgeCount();
-    }
-
-    function setConnect(on){
-      connect.on = on;
-      connect.fromId = null;
-
-      $("#connectToggle").classList.toggle("active", on);
-      $("#connectToggle").setAttribute("aria-pressed", on ? "true" : "false");
-      $("#toggleText").textContent = on ? "On" : "Off";
-
-      $("#helpText").innerHTML = on
-        ? `Step 1: click a <b>From</b> article. Step 2: click a <b>To</b> article.`
-        : `Turn on → click <b>From</b> article → click <b>To</b> article.`;
-
-      toast(on ? "Connections ON. Pick FROM then TO." : "Connections OFF.");
-      render();
-    }
 
     /***********************
      * FILTERING + ORDER
@@ -1253,76 +1684,165 @@
     }
 
     /***********************
-     * RENDER
+     * CONNECTIONS
      ***********************/
-    function render(){
-      const filtered = baseFiltered();
-      $("#statTotal").textContent = String(ITEMS.length);
-      $("#statVisible").textContent = String(filtered.length);
-
-      const clustersEl = $("#clusters");
-      const emptyEl = $("#empty");
-
-      if(filtered.length === 0){
-        clustersEl.innerHTML = "";
-        emptyEl.style.display = "block";
-        return;
-      }
-      emptyEl.style.display = "none";
-
-      if(state.sort === "date_desc" || state.sort === "date_asc"){
-        const all = [...filtered].sort((a,b)=> state.sort==="date_desc" ? b.iso.localeCompare(a.iso) : a.iso.localeCompare(b.iso));
-        clustersEl.innerHTML = clusterHTML("All topics", all);
-      } else {
-        const grouped = groupByTopic(filtered);
-        const keys = [...grouped.keys()].sort((a,b)=>a.localeCompare(b));
-        clustersEl.innerHTML = keys.map(k => clusterHTML(k, sortWithin(grouped.get(k)))).join("");
-      }
-
-      // Bind row events + per-row actions
-      $$(".row", clustersEl).forEach(r=>{
-        const id = r.dataset.id;
-        const item = ITEMS.find(x=>x.id===id);
-
-        // Connection mode visuals
-        r.classList.toggle("connectMode", connect.on);
-        r.classList.toggle("selectedFrom", connect.on && connect.fromId === id);
-
-        r.addEventListener("click", (e)=>{
-          if(e.target.closest("button") || e.target.closest("a")) return;
-
-          if(connect.on){
-            handleConnectClick(id);
-            return;
-          }
-          openModal(item);
-        });
-
-        r.querySelector(".iconBtn.star").addEventListener("click",(e)=>{
-          e.stopPropagation();
-          toggleBookmark(id);
-          e.currentTarget.classList.toggle("active", bookmarks.has(id));
-          toast(bookmarks.has(id) ? "Bookmarked." : "Removed bookmark.");
-          if(state.timeWindow === -1) render();
-        });
-
-        r.querySelector(".iconBtn.open").addEventListener("click",(e)=>{
-          e.stopPropagation();
-          if(item.url) window.open(item.url, "_blank", "noopener,noreferrer");
-          else { openModal(item); toast("No direct URL in this row — showing details."); }
-        });
-
-        // NEW: Connect button just toggles Connections mode ON (if off) and selects FROM if on.
-        r.querySelector(".iconBtn.connect").addEventListener("click",(e)=>{
-          e.stopPropagation();
-          if(!connect.on) setConnect(true);
-          handleConnectClick(id);
-        });
-      });
-
-      updateEdgeCount();
+    function setConnect(on){
+      connect.on = on;
+      connect.fromId = null;
+      $("#connectToggle").classList.toggle("active", on);
+      $("#connectToggle").setAttribute("aria-pressed", on ? "true" : "false");
+      $("#toggleText").textContent = on ? "On" : "Off";
+      $("#helpText").innerHTML = on
+        ? `Step 1: tap a <b>From</b> item. Step 2: tap a <b>To</b> item.`
+        : `Turn on → tap <b>From</b> → tap <b>To</b>.`;
+      toast(on ? "Connections ON. Pick FROM then TO." : "Connections OFF.");
+      render();
     }
 
+    function handleConnectClick(id){
+      if(!connect.fromId){
+        connect.fromId = id;
+        toast("Now pick the TO item.");
+        render();
+        return;
+      }
+      if(connect.fromId === id){
+        connect.fromId = null;
+        toast("From cleared. Pick FROM again.");
+        render();
+        return;
+      }
+      addConnection(connect.fromId, id);
+      connect.fromId = null;
+      render();
+      renderConnectionsPanel();
+    }
+
+    function addConnection(fromId, toId){
+      if(edges.some(e=>e.from===fromId && e.to===toId)){
+        toast("That connection already exists.");
+        return;
+      }
+      edges.push({ from: fromId, to: toId, createdAt: new Date().toISOString() });
+      persistEdges();
+      updateEdgeCount();
+      toast("Connected ✔");
+      openConnectionsPanel(true);
+    }
+
+    function persistEdges(){ localStorage.setItem(EDGES_KEY, JSON.stringify(edges)); }
+    function updateEdgeCount(){ $("#edgeCount").textContent = `${edges.length} connection${edges.length===1?"":"s"}`; }
+
+    function openConnectionsPanel(noToast=false){
+      $("#connPanel").classList.add("show");
+      renderConnectionsPanel();
+      if(!noToast) toast("Connections opened.");
+    }
+    function closeConnectionsPanel(){ $("#connPanel").classList.remove("show"); }
+
+    function renderConnectionsPanel(){
+      const listEl = $("#connList");
+      if(!listEl) return;
+
+      if(edges.length === 0){
+        listEl.innerHTML = `
+          <div class="edgeItem">
+            <div class="edgeTop">
+              <div class="label">No connections yet</div>
+              <div class="mini">Tip</div>
+            </div>
+            <div style="margin-top:8px; font-size:13px; color: var(--muted); line-height:1.4;">
+              Turn <b>Connections</b> on, tap one item (From), then tap another (To).
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const sorted = [...edges].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+
+      listEl.innerHTML = sorted.map((e, idx)=>{
+        const from = ITEMS.find(x=>x.id===e.from);
+        const to = ITEMS.find(x=>x.id===e.to);
+        const fromLabel = from ? shorten(from.topic, 52) : e.from;
+        const toLabel = to ? shorten(to.topic, 52) : e.to;
+        const when = e.createdAt ? new Date(e.createdAt).toLocaleString() : "";
+
+        return `
+          <div class="edgeItem">
+            <div class="edgeTop">
+              <div class="label">“${escapeHtml(fromLabel)}” → “${escapeHtml(toLabel)}”</div>
+              <div class="mini">${escapeHtml(when)}</div>
+            </div>
+            <div class="edgeBtns">
+              <button class="tinyBtn" data-open="${escapeHtml(e.from)}">Open FROM</button>
+              <button class="tinyBtn" data-open="${escapeHtml(e.to)}">Open TO</button>
+              <button class="tinyBtn danger" data-del="${escapeHtml(e.from)}|${escapeHtml(e.to)}">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      $$("[data-open]", listEl).forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.dataset.open;
+          const item = ITEMS.find(x=>x.id===id);
+          if(item) openModal(item);
+        });
+      });
+      $$("[data-del]", listEl).forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const [from,to] = btn.dataset.del.split("|");
+          edges = edges.filter(e=>!(e.from===from && e.to===to));
+          persistEdges();
+          updateEdgeCount();
+          renderConnectionsPanel();
+          toast("Connection deleted.");
+        });
+      });
+    }
+
+    /***********************
+     * BOOKMARKS + MODAL
+     ***********************/
+    function toggleBookmark(id){
+      if(bookmarks.has(id)) bookmarks.delete(id);
+      else bookmarks.add(id);
+      localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...bookmarks]));
+    }
+
+    function openModal(item){
+      if(!item) return;
+      window.__modalItem = item;
+
+      $("#mTitle").textContent = item.topic;
+      $("#mSub").textContent = item.subtopic;
+      $("#mDetails").textContent = item.fullDetails;
+
+      $("#mDate").textContent = formatPrettyDate(item.iso);
+      $("#mTopic").textContent = item.topic;
+      $("#mSubtopic").textContent = item.subtopic;
+      $("#mNewness").textContent = item.newness;
+      $("#mSource").textContent = item.source;
+
+      const a = $("#mLink");
+      if(item.url){
+        a.href=item.url; a.textContent="Open source"; a.style.opacity="1"; a.style.pointerEvents="auto";
+      } else {
+        a.href="#"; a.textContent="No direct URL in table row"; a.style.opacity=".7"; a.style.pointerEvents="none";
+      }
+
+      $("#mBookmarkBtn").textContent = bookmarks.has(item.id) ? "★ Bookmarked" : "★ Bookmark";
+      $("#modalOverlay").classList.add("show");
+    }
+    function closeModal(){
+      $("#modalOverlay").classList.remove("show");
+      window.__modalItem = null;
+    }
+
+    /***********************
+     * RENDER
+     ***********************/
     function clusterHTML(topic, items){
       const newest = items.reduce((acc,x)=> acc > x.iso ? acc : x.iso, "1900-01-01");
       const newestAge = daysBetween(NOW_ISO, newest);
@@ -1357,27 +1877,29 @@
           <span class="badge">${escapeHtml(shorten(x.topic, 22))}</span>
 
           <div class="cell date">
-            <span class="${dotCls}"></span>
-            ${escapeHtml(formatPrettyDate(x.iso))}
+            <span style="display:flex; gap:8px; align-items:center;">
+              <span class="${dotCls}"></span>
+              ${escapeHtml(formatPrettyDate(x.iso))}
+            </span>
+            <span class="tag ${tag.cls}" style="margin:0;"><span class="b"></span>${escapeHtml(tag.label)}</span>
           </div>
 
-          <div class="cell">
+          <div class="cell titleBlock">
             <div class="topic" title="${escapeHtml(x.topic)}">${escapeHtml(x.topic)}</div>
           </div>
 
-          <div class="cell">
+          <div class="cell subBlock">
             <div class="subtopic" title="${escapeHtml(x.subtopic)}">${escapeHtml(x.subtopic)}</div>
           </div>
 
-          <div class="cell">
-            <div class="summary">${escapeHtml(shorten(x.shortSummary, 220))}</div>
+          <div class="cell sumBlock">
+            <div class="summary">${escapeHtml(shorten(x.shortSummary, 240))}</div>
           </div>
 
-          <div class="cell">
+          <div class="cell sourceBlock">
             <div class="src">
               <div class="lbl">from</div>
               <div class="srcHost" title="${escapeHtml(x.host)}">${escapeHtml(x.host)}</div>
-              <span class="tag ${tag.cls}"><span class="b"></span>${escapeHtml(tag.label)}</span>
             </div>
           </div>
 
@@ -1390,163 +1912,9 @@
       `;
     }
 
-    /***********************
-     * CONNECTIONS UX (SIMPLE)
-     ***********************/
-    function handleConnectClick(id){
-      // Step 1: pick FROM
-      if(!connect.fromId){
-        connect.fromId = id;
-        toast("Now pick the TO article.");
-        // highlight
-        render();
-        return;
-      }
-
-      // Step 2: pick TO
-      if(connect.fromId === id){
-        connect.fromId = null;
-        toast("From selection cleared. Pick FROM again.");
-        render();
-        return;
-      }
-
-      addConnection(connect.fromId, id);
-      connect.fromId = null;
-      render();
-      renderConnectionsPanel();
-    }
-
-    function addConnection(fromId, toId){
-      if(edges.some(e=>e.from===fromId && e.to===toId)){
-        toast("That connection already exists.");
-        return;
-      }
-      edges.push({ from: fromId, to: toId, createdAt: new Date().toISOString() });
-      persistEdges();
-      updateEdgeCount();
-      toast("Connected ✔");
-      // auto-open viewer panel so user sees result (much clearer)
-      openConnectionsPanel(true);
-    }
-
-    function persistEdges(){ localStorage.setItem(EDGES_KEY, JSON.stringify(edges)); }
-
-    function updateEdgeCount(){
-      $("#edgeCount").textContent = `${edges.length} connection${edges.length===1?"":"s"}`;
-    }
-
-    function openConnectionsPanel(noToast=false){
-      $("#connPanel").classList.add("show");
-      renderConnectionsPanel();
-      if(!noToast) toast("Connections opened.");
-    }
-    function closeConnectionsPanel(){
-      $("#connPanel").classList.remove("show");
-    }
-
-    function renderConnectionsPanel(){
-      const listEl = $("#connList");
-      if(!listEl) return;
-
-      if(edges.length === 0){
-        listEl.innerHTML = `
-          <div class="edgeItem">
-            <div class="edgeTop">
-              <div class="label">No connections yet</div>
-              <div class="mini">Tip</div>
-            </div>
-            <div style="margin-top:8px; font-size:12px; color: var(--muted); line-height:1.4;">
-              Turn <b>Connections</b> on, click one article (From), then click another (To).
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      // newest connections first
-      const sorted = [...edges].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
-
-      listEl.innerHTML = sorted.map((e, idx)=>{
-        const from = ITEMS.find(x=>x.id===e.from);
-        const to = ITEMS.find(x=>x.id===e.to);
-        const fromLabel = from ? shorten(from.topic, 48) : e.from;
-        const toLabel = to ? shorten(to.topic, 48) : e.to;
-        const when = e.createdAt ? new Date(e.createdAt).toLocaleString() : "";
-
-        return `
-          <div class="edgeItem" data-edge="${idx}">
-            <div class="edgeTop">
-              <div class="label">“${escapeHtml(fromLabel)}” → “${escapeHtml(toLabel)}”</div>
-              <div class="mini">${escapeHtml(when)}</div>
-            </div>
-            <div class="edgeBtns">
-              <button class="tinyBtn" data-open="${escapeHtml(e.from)}">Open FROM</button>
-              <button class="tinyBtn" data-open="${escapeHtml(e.to)}">Open TO</button>
-              <button class="tinyBtn danger" data-del="${escapeHtml(e.from)}|${escapeHtml(e.to)}">Delete</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      // bind buttons
-      $$("[data-open]", listEl).forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const id = btn.dataset.open;
-          const item = ITEMS.find(x=>x.id===id);
-          if(item) openModal(item);
-        });
-      });
-      $$("[data-del]", listEl).forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const [from,to] = btn.dataset.del.split("|");
-          edges = edges.filter(e=>!(e.from===from && e.to===to));
-          persistEdges();
-          updateEdgeCount();
-          renderConnectionsPanel();
-          toast("Connection deleted.");
-        });
-      });
-    }
-
-    /***********************
-     * BOOKMARKS + DETAILS
-     ***********************/
-    function toggleBookmark(id){
-      if(bookmarks.has(id)) bookmarks.delete(id);
-      else bookmarks.add(id);
-      localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...bookmarks]));
-    }
-
-    function openModal(item){
-      if(!item) return;
-      window.__modalItem = item;
-      $("#mTitle").textContent = item.topic;
-      $("#mSub").textContent = item.subtopic;
-      $("#mDetails").textContent = item.fullDetails;
-
-      $("#mDate").textContent = formatPrettyDate(item.iso);
-      $("#mTopic").textContent = item.topic;
-      $("#mSubtopic").textContent = item.subtopic;
-      $("#mNewness").textContent = item.newness;
-      $("#mSource").textContent = item.source;
-
-      const a = $("#mLink");
-      if(item.url){
-        a.href=item.url; a.textContent="Open source"; a.style.opacity="1"; a.style.pointerEvents="auto";
-      } else {
-        a.href="#"; a.textContent="No direct URL in table row"; a.style.opacity=".7"; a.style.pointerEvents="none";
-      }
-      $("#mBookmarkBtn").textContent = bookmarks.has(item.id) ? "★ Bookmarked" : "★ Bookmark";
-      $("#modalOverlay").classList.add("show");
-    }
-    function closeModal(){ $("#modalOverlay").classList.remove("show"); window.__modalItem=null; }
-
-    /***********************
-     * LIST RENDER
-     ***********************/
-    function renderList(){
+    function render(){
       const filtered = baseFiltered();
+
       $("#statTotal").textContent = String(ITEMS.length);
       $("#statVisible").textContent = String(filtered.length);
 
@@ -1587,13 +1955,13 @@
           toggleBookmark(id);
           e.currentTarget.classList.toggle("active", bookmarks.has(id));
           toast(bookmarks.has(id) ? "Bookmarked." : "Removed bookmark.");
-          if(state.timeWindow === -1) renderList();
+          if(state.timeWindow === -1) render();
         });
 
         r.querySelector(".iconBtn.open").addEventListener("click",(e)=>{
           e.stopPropagation();
           if(item.url) window.open(item.url, "_blank", "noopener,noreferrer");
-          else { openModal(item); toast("No direct URL in this row — showing details."); }
+          else { openModal(item); toast("No direct URL — see details."); }
         });
 
         r.querySelector(".iconBtn.connect").addEventListener("click",(e)=>{
@@ -1604,12 +1972,164 @@
       });
 
       updateEdgeCount();
+      if($("#connPanel").classList.contains("show")) renderConnectionsPanel();
     }
 
-    function render(){
-      renderList();
-      // Keep connections panel content current if open
-      if($("#connPanel").classList.contains("show")) renderConnectionsPanel();
+    /***********************
+     * TIME CHIPS
+     ***********************/
+    function initTimeChips(){
+      const chips = [
+        { days:0, label:"All time" },
+        { days:7, label:"Newest (7d)" },
+        { days:30, label:"Last 30d" },
+        { days:365, label:"Last 1y" },
+        { days:-1, label:"Bookmarks" },
+      ];
+      $("#timeChips").innerHTML = chips.map(c => `<div class="chip ${c.days===state.timeWindow?"active":""}" data-days="${c.days}" role="button" tabindex="0">${escapeHtml(c.label)}</div>`).join("");
+      $("#timeChips").addEventListener("click",(e)=>{
+        const el = e.target.closest(".chip"); if(!el) return;
+        state.timeWindow = Number(el.dataset.days);
+        $$("#timeChips .chip").forEach(x=>x.classList.toggle("active", Number(x.dataset.days)===state.timeWindow));
+        render();
+      });
+    }
+
+    /***********************
+     * FILTERS + DRAWER SYNC
+     ***********************/
+    function syncDesktopToState(){
+      const q = $("#q"); if(q) q.value = state.q;
+      const t = $("#interestSelect"); if(t) t.value = state.interest;
+      const s = $("#sortSelect"); if(s) s.value = state.sort;
+    }
+    function syncMobileToState(){
+      const q = $("#qMobile"); if(q) q.value = state.q;
+      const t = $("#interestSelectMobile"); if(t) t.value = state.interest;
+      const s = $("#sortSelectMobile"); if(s) s.value = state.sort;
+    }
+    function applyMobileFiltersToState(){
+      state.q = ($("#qMobile").value || "").trim();
+      state.interest = $("#interestSelectMobile").value;
+      state.sort = $("#sortSelectMobile").value;
+      syncDesktopToState();
+      render();
+    }
+
+    function openDrawer(){
+      $("#drawerOverlay").classList.add("show");
+      syncMobileToState();
+    }
+    function closeDrawer(){
+      $("#drawerOverlay").classList.remove("show");
+      applyMobileFiltersToState();
+    }
+
+    /***********************
+     * INIT CONTROLS
+     ***********************/
+    function initControls(){
+      const topics = ["all", ...Array.from(new Set(ITEMS.map(x=>x.topic))).sort((a,b)=>a.localeCompare(b))];
+
+      // Desktop selects
+      $("#interestSelect").innerHTML = topics.map(t => `<option value="${escapeHtml(t)}">${t==="all" ? "All areas of interest" : t}</option>`).join("");
+      $("#interestSelect").addEventListener("change", (e)=>{ state.interest = e.target.value; syncMobileToState(); render(); });
+
+      $("#sortSelect").addEventListener("change",(e)=>{ state.sort = e.target.value; syncMobileToState(); render(); });
+
+      $("#q").addEventListener("input",(e)=>{ state.q = e.target.value.trim(); syncMobileToState(); render(); });
+
+      // Mobile drawer selects
+      $("#interestSelectMobile").innerHTML = topics.map(t => `<option value="${escapeHtml(t)}">${t==="all" ? "All areas of interest" : t}</option>`).join("");
+      $("#sortSelectMobile").value = state.sort;
+
+      $("#qMobile").addEventListener("input", ()=> applyMobileFiltersToState());
+      $("#interestSelectMobile").addEventListener("change", ()=> applyMobileFiltersToState());
+      $("#sortSelectMobile").addEventListener("change", ()=> applyMobileFiltersToState());
+
+      // Theme buttons
+      const toggleTheme = ()=>{
+        const cur = document.documentElement.getAttribute("data-theme") || "light";
+        setTheme(cur==="light" ? "dark" : "light");
+      };
+      $("#themeBtn").addEventListener("click", toggleTheme);
+      $("#themeBtnMobile").addEventListener("click", toggleTheme);
+      $("#themeBtnDrawer").addEventListener("click", toggleTheme);
+
+      // Copy sources
+      const copySources = async ()=>{
+        const list = flattenFiltered().map((x,i)=>{
+          const linkPart = x.url ? x.url : x.link;
+          return `${i+1}. ${x.topic} — ${x.subtopic} (${formatPrettyDate(x.iso)}) · ${x.source} · ${linkPart}`;
+        }).join("\n");
+        await copyToClipboard(list || "No items to copy.");
+        toast("Copied sources.");
+      };
+      $("#copyBtn").addEventListener("click", copySources);
+      $("#copyBtnMobile").addEventListener("click", copySources);
+
+      // Reset
+      const doReset = ()=>{
+        state.q=""; state.interest="all"; state.sort="cluster_then_date_desc"; state.timeWindow=0;
+        const q = $("#q"); if(q) q.value="";
+        const t = $("#interestSelect"); if(t) t.value="all";
+        const s = $("#sortSelect"); if(s) s.value="cluster_then_date_desc";
+        $$("#timeChips .chip").forEach(x=>x.classList.toggle("active", Number(x.dataset.days)===0));
+        setConnect(false);
+        syncMobileToState();
+        render();
+        toast("Reset done.");
+      };
+      $("#resetBtn").addEventListener("click", doReset);
+      $("#resetBtnMobile").addEventListener("click", doReset);
+
+      // Connections toggle
+      $("#connectToggle").addEventListener("click", ()=> setConnect(!connect.on));
+      $("#connectToggle").addEventListener("keydown",(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setConnect(!connect.on);} });
+
+      // Connections panel
+      $("#viewConnectionsBtn").addEventListener("click", ()=> openConnectionsPanel());
+      $("#closeConnPanel").addEventListener("click", ()=> closeConnectionsPanel());
+      $("#clearConnectionsBtn").addEventListener("click", ()=>{
+        edges = [];
+        persistEdges();
+        updateEdgeCount();
+        renderConnectionsPanel();
+        toast("Connections cleared.");
+      });
+
+      // Modal events
+      $("#closeModal").addEventListener("click", closeModal);
+      $("#modalOverlay").addEventListener("click", (e)=>{ if(e.target.id==="modalOverlay") closeModal(); });
+
+      $("#mBookmarkBtn").addEventListener("click", ()=>{
+        if(!window.__modalItem) return;
+        toggleBookmark(window.__modalItem.id);
+        openModal(window.__modalItem);
+      });
+      $("#mCopyBtn").addEventListener("click", async ()=>{
+        const x = window.__modalItem; if(!x) return;
+        const citation = `${x.topic} — ${x.subtopic} (${formatPrettyDate(x.iso)}). Source: ${x.source}. ${x.url ? x.url : x.link}`;
+        await copyToClipboard(citation);
+        toast("Copied citation.");
+      });
+
+      // Drawer events
+      $("#filtersBtn").addEventListener("click", openDrawer);
+      $("#closeDrawerBtn").addEventListener("click", closeDrawer);
+      $("#drawerOverlay").addEventListener("click", (e)=>{ if(e.target.id==="drawerOverlay") closeDrawer(); });
+
+      // Esc to close
+      document.addEventListener("keydown",(e)=>{
+        if(e.key==="Escape"){
+          closeModal();
+          closeConnectionsPanel();
+          $("#drawerOverlay").classList.remove("show");
+          if(connect.on) setConnect(false);
+        }
+      });
+
+      updateEdgeCount();
     }
 
     /***********************
@@ -1637,7 +2157,10 @@
      * BOOT
      ***********************/
     setTheme(getTheme());
+    initTimeChips();
     initControls();
+    syncDesktopToState();
+    syncMobileToState();
     render();
   </script>
 </body>
