@@ -1,6 +1,6 @@
 # decision-intelligence-brief
 
-Decision Intelligence Brief (MVP)
+<b> Decision Intelligence Brief (MVP) <b>
 
 Decision Intelligence Brief is a minimal viable product (MVP) web application that aggregates and visualizes recent research, news, and insights on organizational decision-making.
 
